@@ -1,4 +1,4 @@
-print("Opersdores de comparación")
+print("Operadores de comparación")
 
 numero1=float(input("Primer Numero:"))
 numero2=float(input("Segundo Numero:"))
