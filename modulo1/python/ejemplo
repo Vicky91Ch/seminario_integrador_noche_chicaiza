@@ -1,0 +1,12 @@
+    
+print("if condiciones anidadas")
+tipo_usuario=input("Ingrese el tipo de usuario (premium/gratis): ")
+pagado=input("Realizo el pago (si/no): ")
+
+if tipo_usuario=="premium":
+    if pagado=="si":
+        print("Acceso completo")
+    elif pagado=="no":
+        print("Debe pagar") 
+else:
+    print("Acceso limitado")
