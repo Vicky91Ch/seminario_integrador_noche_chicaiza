@@ -1,0 +1,38 @@
+interface Moto {
+  name: string
+  emoji: string
+  precio: number
+}
+
+interface MotoListProps {
+  motos: Moto[]
+  title?: string
+}
+
+export default function MotoList({ motos, title = 'Motos' }: MotoListProps) {
+  if (motos.length === 0) {
+    return <p style={{ color: '#999' }}>No hay motos en el inventario.</p>
+  }
+
+  return (
+    <div>
+      <h3 style={{ marginBottom: 8 }}>{title}</h3>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        {motos.map((moto) => (
+          <li
+            key={moto.name}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '8px 0',
+              borderBottom: '1px solid #eee',
+            }}
+          >
+            <span>{moto.emoji} {moto.name}</span>
+            <span style={{ color: '#888', fontSize: 13 }}>${moto.precio.toLocaleString()}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
