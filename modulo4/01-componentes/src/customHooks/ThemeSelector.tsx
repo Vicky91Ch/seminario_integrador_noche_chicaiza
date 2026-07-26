@@ -1,24 +1,26 @@
-// src/hooks/useLocalStorage.ts
+// Uso — API idéntica a useState, pero persiste entre recargas
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
-import { useState, useEffect } from 'react'
+export default function ThemeSelector() {
+  const [theme, setTheme] = useLocalStorage<'light' | 'dark'>('theme', 'light')
 
-export function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      const item = localStorage.getItem(key)
-      return item ? (JSON.parse(item) as T) : initialValue
-    } catch {
-      return initialValue
-    }
-  })
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(key, JSON.stringify(storedValue))
-    } catch {
-      console.warn(`useLocalStorage: no se pudo guardar "${key}"`)
-    }
-  }, [key, storedValue])
-
-  return [storedValue, setStoredValue] as const
+  return (
+    <div style={{ display: 'flex', gap: 8 }}>
+      {(['light', 'dark'] as const).map((t) => (
+        <button
+          key={t}
+          onClick={() => setTheme(t)}
+          style={{
+            padding: '6px 14px', borderRadius: 6,
+            border: '1px solid #d1d5db',
+            background: theme === t ? '#0070f3' : '#fff',
+            color:      theme === t ? '#fff'    : '#333',
+            cursor: 'pointer',
+          }}
+        >
+          {t === 'light' ? '☀️ Claro' : '🌙 Oscuro'}
+        </button>
+      ))}
+    </div>
+  )
 }

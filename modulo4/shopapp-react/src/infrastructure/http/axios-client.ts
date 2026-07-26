@@ -61,13 +61,27 @@ let isRefreshing = false
 /** Cola de callbacks que esperan el nuevo access token. */
 let refreshSubscribers: Array<(token: string) => void> = []
 
+/** Cola de rechazos para cuando el refresh falla. */
+let refreshRejectors: Array<(error: Error) => void> = []
+
 function subscribeTokenRefresh(cb: (token: string) => void) {
   refreshSubscribers.push(cb)
+}
+
+function subscribeTokenRefreshReject(cb: (error: Error) => void) {
+  refreshRejectors.push(cb)
 }
 
 function notifySubscribers(token: string) {
   refreshSubscribers.forEach((cb) => cb(token))
   refreshSubscribers = []
+  refreshRejectors = []
+}
+
+function rejectSubscribers(error: Error) {
+  refreshRejectors.forEach((cb) => cb(error))
+  refreshSubscribers = []
+  refreshRejectors = []
 }
 
 /**
@@ -109,8 +123,9 @@ apiClient.interceptors.response.use(
 
     if (isRefreshing) {
       // Ya hay un refresh en curso: encolar esta petición
-      return new Promise<string>((resolve) => {
+      return new Promise<string>((resolve, reject) => {
         subscribeTokenRefresh(resolve)
+        subscribeTokenRefreshReject(reject)
       }).then((newToken) => {
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${newToken}`
@@ -123,8 +138,9 @@ apiClient.interceptors.response.use(
     isRefreshing = true
 
     try {
+      const refreshUrl = new URL('auth/token/refresh/', API_CONFIG.BASE_URL).href
       const { data } = await axios.post<{ access: string }>(
-        `${API_CONFIG.BASE_URL}/auth/token/refresh/`,
+        refreshUrl,
         { refresh: refreshToken },
         { timeout: API_CONFIG.TIMEOUT },
       )
@@ -143,15 +159,15 @@ apiClient.interceptors.response.use(
       }
 
       return apiClient(originalRequest)
-    } catch (refreshError) {
+    } catch {
       // El refresh token también falló: sesión irrecuperable
       localTokenStorage.clearTokens()
-      refreshSubscribers = []
+
+      const authError = new ApiException(401, 'Tu sesión ha expirado. Por favor inicia sesión de nuevo.')
+      rejectSubscribers(authError)
       dispatchAuthExpired('Refresh token invalid or expired')
 
-      return Promise.reject(
-        new ApiException(401, 'Tu sesión ha expirado. Por favor inicia sesión de nuevo.'),
-      )
+      return Promise.reject(authError)
     } finally {
       isRefreshing = false
     }

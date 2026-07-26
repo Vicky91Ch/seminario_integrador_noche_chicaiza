@@ -1,49 +1,32 @@
 // src/infrastructure/storage/local-token-storage.ts
+import type { AuthTokens } from '@/domain/entities/auth-tokens.entity'
 
-/** Forma de los tokens guardados en localStorage. */
-export interface LocalTokens {
-  access: string
-  refresh: string
-}
+const ACCESS_KEY = 'access_token'
+const REFRESH_KEY = 'refresh_token'
 
-/** Claves usadas para guardar los tokens. */
-const KEYS = {
-  ACCESS: 'shopapp_access',
-  REFRESH: 'shopapp_refresh',
-} as const
-
-/**
- * Wrapper tipado sobre localStorage para manejar tokens JWT.
- * Todos los métodos son sincrónicos — localStorage es síncrono por spec.
- */
 export const localTokenStorage = {
-  /** Devuelve ambos tokens si existen, null si falta alguno. */
-  getTokens(): LocalTokens | null {
-    const access = localStorage.getItem(KEYS.ACCESS)
-    const refresh = localStorage.getItem(KEYS.REFRESH)
-    if (!access || !refresh) return null
-    return { access, refresh }
-  },
-
-  /** Persiste el access token y el refresh token. */
-  setTokens(access: string, refresh: string): void {
-    localStorage.setItem(KEYS.ACCESS, access)
-    localStorage.setItem(KEYS.REFRESH, refresh)
-  },
-
-  /** Elimina ambos tokens (logout o expiración de sesión). */
-  clearTokens(): void {
-    localStorage.removeItem(KEYS.ACCESS)
-    localStorage.removeItem(KEYS.REFRESH)
-  },
-
-  /** Devuelve solo el access token, o null si no existe. */
   getAccessToken(): string | null {
-    return localStorage.getItem(KEYS.ACCESS)
+    return localStorage.getItem(ACCESS_KEY)
   },
 
-  /** Devuelve solo el refresh token, o null si no existe. */
   getRefreshToken(): string | null {
-    return localStorage.getItem(KEYS.REFRESH)
+    return localStorage.getItem(REFRESH_KEY)
+  },
+
+  getTokens(): AuthTokens | null {
+    const access = localStorage.getItem(ACCESS_KEY)
+    const refresh = localStorage.getItem(REFRESH_KEY)
+    if (access && refresh) return { access, refresh }
+    return null
+  },
+
+  setTokens(access: string, refresh: string): void {
+    localStorage.setItem(ACCESS_KEY, access)
+    localStorage.setItem(REFRESH_KEY, refresh)
+  },
+
+  clearTokens(): void {
+    localStorage.removeItem(ACCESS_KEY)
+    localStorage.removeItem(REFRESH_KEY)
   },
 }

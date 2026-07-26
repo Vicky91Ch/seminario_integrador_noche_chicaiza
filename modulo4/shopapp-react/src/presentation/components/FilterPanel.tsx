@@ -1,17 +1,17 @@
 // src/presentation/components/FilterPanel.tsx
 import { SlidersHorizontal } from 'lucide-react'
-import { Button } from './ui/button'
+import { Button } from '@/presentation/components/ui/button'
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from './ui/sheet'
-import { Badge } from './ui/badge'
-import { CategoryFilter } from './CategoryFilter'
-import { SortSelect } from './SortSelect'
-import { useCatalogStore } from '../store/catalog.store'
+} from '@/presentation/components/ui/sheet'
+import { Badge } from '@/presentation/components/ui/badge'
+import { CategoryFilter } from '@/presentation/components/CategoryFilter'
+import { SortSelect } from '@/presentation/components/SortSelect'
+import { useCatalogStore } from '@/presentation/store/catalog.store'
 
 function FilterContent() {
   const resetFilters = useCatalogStore((s) => s.resetFilters)
